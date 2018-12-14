@@ -53,7 +53,7 @@ export default {
   components: {
     ColorPicker: Sketch
   },
-  mounted: async function () {
+  mounted: async function() {
     let connection = new signalR.HubConnectionBuilder()
       .withUrl(`${apiBaseUrl}/api`)
       .build();
