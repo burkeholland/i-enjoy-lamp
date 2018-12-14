@@ -13,16 +13,14 @@
       </div>
       <div class="color-picker">
         <color-picker class="picker" :value="colors" @input="updateValue"></color-picker>
-        <div class="livestream">
-          <iframe
-            width="560"
-            height="315"
-            :src="livestream"
-            frameborder="0"
-            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-          ></iframe>
-        </div>
+        <iframe
+          width="560"
+          height="315"
+          :src="livestream"
+          frameborder="0"
+          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+        ></iframe>
       </div>
       <p :style="{ 'color': inverse }">
         <b>{{ message }}</b>
@@ -115,9 +113,15 @@ export default {
       let target = this.$refs.target;
       let spinner = new Spinner(opts).spin(target);
 
-      axios.get(`${apiBaseUrl}/api/setColor?color=${hex}`).then(response => {
-        spinner.stop();
-      });
+      axios
+        .get(`${apiBaseUrl}/api/setColor?color=${hex}`)
+        .then(response => {
+          spinner.stop();
+        })
+        .catch(err => {
+          this.message = `${err}`;
+          spinner.stop();
+        });
     }
   }
 };
@@ -152,6 +156,7 @@ footer {
 
 .color {
   margin: auto;
+  text-align: center;
 }
 
 .color-picker {
@@ -176,7 +181,7 @@ h1 {
 }
 
 @media screen and (max-width: 819px) {
-  .livestream iframe {
+  .color-picker iframe {
     display: none;
   }
 }
