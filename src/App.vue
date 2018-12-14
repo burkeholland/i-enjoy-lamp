@@ -3,11 +3,20 @@
     <div class="color">
       <div class="title">
         <h1 class="animate" :style="{ 'color': inverse }">I Enjoy Lamp</h1>
-        <p class="animate" :style="{ 'color': inverse }">Change the color of
+        <p class="animate" :style="{ 'color': inverse }">
+          Change the color of
           <a href="https://twitter.com/burkeholland">Burke's</a> LIFX connected lightbulb.
         </p>
         <div class="color-picker">
           <color-picker :value="colors" @input="updateValue"></color-picker>
+          <iframe
+            width="560"
+            height="315"
+            src="https://www.youtube.com/embed/VrtlB-iHi1Q"
+            frameborder="0"
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
         </div>
         <p :style="{ 'color': inverse }">
           <b>{{ message }}</b>
@@ -15,7 +24,8 @@
       </div>
     </div>
     <footer>
-      <p :style="{ 'color': inverse }">This is Serverless. Built with
+      <p :style="{ 'color': inverse }">
+        This is Serverless. Built with
         <a
           href="https://code.visualstudio.com/tutorials/functions-extension/getting-started?WT.mc_id=ienjoylamp-dotcom-buhollan"
         >Azure Functions.</a>
