@@ -7,21 +7,26 @@
           Change the color of
           <a href="https://twitter.com/burkeholland">Burke's</a> LIFX connected lightbulb.
         </p>
-        <div class="color-picker">
-          <color-picker :value="colors" @input="updateValue"></color-picker>
+        <p class="animate" :style="{ 'color': inverse }" id="livestreamLink">
+          <a :href="livestream">Watch the Lamp Live Stream</a>
+        </p>
+      </div>
+      <div class="color-picker">
+        <color-picker class="picker" :value="colors" @input="updateValue"></color-picker>
+        <div class="livestream">
           <iframe
             width="560"
             height="315"
-            src="https://www.youtube.com/embed/VrtlB-iHi1Q"
+            :src="livestream"
             frameborder="0"
             allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
             allowfullscreen
           ></iframe>
         </div>
-        <p :style="{ 'color': inverse }">
-          <b>{{ message }}</b>
-        </p>
       </div>
+      <p :style="{ 'color': inverse }">
+        <b>{{ message }}</b>
+      </p>
     </div>
     <footer>
       <p :style="{ 'color': inverse }">
@@ -29,6 +34,12 @@
         <a
           href="https://code.visualstudio.com/tutorials/functions-extension/getting-started?WT.mc_id=ienjoylamp-dotcom-buhollan"
         >Azure Functions.</a>
+      </p>
+      <p class="animate" :style="{ 'color': inverse }">
+        Use ENJOYLAMP20 for a 20% discount on your own
+        <a
+          href="https://www.lifx.com/products/lifx-mini-color-e26"
+        >LIFX smart bulb</a>.
       </p>
     </footer>
   </div>
@@ -41,7 +52,8 @@ import { Spinner } from "spin.js";
 import ColorInverter from "./inverter.js";
 import * as signalR from "@aspnet/signalr";
 
-const apiBaseUrl = process.env.API_BASE_URL || "https://i-enjoy-lamp.azurewebsites.net";
+const apiBaseUrl =
+  process.env.API_BASE_URL || "https://i-enjoy-lamp.azurewebsites.net";
 
 const colors = {
   hex: "#194d33",
@@ -57,7 +69,8 @@ export default {
     return {
       colors,
       message: "",
-      inverse: "#fff"
+      inverse: "#fff",
+      livestream: "https://www.youtube.com/embed/TD44SkQySa8"
     };
   },
   components: {
@@ -68,11 +81,14 @@ export default {
       .withUrl(`${apiBaseUrl}/api`)
       .build();
 
-    connection.on("colorChanged", function(hex) {
-      this.colors = { hex: `#${hex}` };
-      this.inverse = `#${ColorInverter.invertHex(hex)}`;
-      this.message = `The lamp is now ${this.colors.hex}`;
-    }.bind(this));
+    connection.on(
+      "colorChanged",
+      function(hex) {
+        this.colors = { hex: `#${hex}` };
+        this.inverse = `#${ColorInverter.invertHex(hex)}`;
+        this.message = `The lamp is now ${this.colors.hex}`;
+      }.bind(this)
+    );
 
     await connection.start();
   },
@@ -99,11 +115,9 @@ export default {
       let target = this.$refs.target;
       let spinner = new Spinner(opts).spin(target);
 
-      axios
-        .get(`${apiBaseUrl}/api/setColor?color=${hex}`)
-        .then(response => {
-          spinner.stop();
-        });
+      axios.get(`${apiBaseUrl}/api/setColor?color=${hex}`).then(response => {
+        spinner.stop();
+      });
     }
   }
 };
@@ -159,6 +173,18 @@ h1 {
 
 .animate {
   transition: color 1s, background-color 1s;
+}
+
+@media screen and (max-width: 819px) {
+  .livestream iframe {
+    display: none;
+  }
+}
+
+@media screen and (min-width: 820px) {
+  #livestreamLink {
+    display: none;
+  }
 }
 
 @keyframes spinner-line-fade-more {
