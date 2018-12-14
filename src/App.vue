@@ -39,6 +39,9 @@ import { Sketch } from "vue-color";
 import * as axios from "axios";
 import { Spinner } from "spin.js";
 import ColorInverter from "./inverter.js";
+import * as signalR from "@aspnet/signalr";
+
+const apiBaseUrl = process.env.API_BASE_URL || "https://i-enjoy-lamp.azurewebsites.net";
 
 const colors = {
   hex: "#194d33",
@@ -60,6 +63,19 @@ export default {
   components: {
     ColorPicker: Sketch
   },
+  mounted: async function() {
+    let connection = new signalR.HubConnectionBuilder()
+      .withUrl(`${apiBaseUrl}/api`)
+      .build();
+
+    connection.on("colorChanged", function(hex) {
+      this.colors = { hex: `#${hex}` };
+      this.inverse = `#${ColorInverter.invertHex(hex)}`;
+      this.message = `The lamp is now ${this.colors.hex}`;
+    }.bind(this));
+
+    await connection.start();
+  },
   methods: {
     updateValue(value) {
       // strip the # off the hex
@@ -70,7 +86,7 @@ export default {
         width: 17, // The line thickness
         radius: 45, // The radius of the inner circle
         scale: 2, // Scales overall size of the spinner
-        color: `${value.hex}`, // CSS color or array of colors
+        color: `#${hex}`, // CSS color or array of colors
         animation: "spinner-line-fade-quick", // The CSS animation name for the lines
         direction: 1, // 1: clockwise, -1: counterclockwise
         className: "spinner", // The CSS class to assign to the spinner
@@ -84,12 +100,9 @@ export default {
       let spinner = new Spinner(opts).spin(target);
 
       axios
-        .get(`https://i-enjoy-lamp.azurewebsites.net/api/setColor?color=${hex}`)
+        .get(`${apiBaseUrl}/api/setColor?color=${hex}`)
         .then(response => {
           spinner.stop();
-          this.colors = value;
-          this.inverse = `#${ColorInverter.invertHex(hex)}`;
-          this.message = `The lamp is now ${this.colors.hex}`;
         });
     }
   }
