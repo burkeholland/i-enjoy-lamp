@@ -7,20 +7,9 @@
           Change the color of
           <a href="https://twitter.com/burkeholland">Burke's</a> LIFX connected lightbulb.
         </p>
-        <p class="animate" :style="{ 'color': inverse }" id="livestreamLink">
-          <a :href="livestream">Watch the Lamp Live Stream</a>
-        </p>
       </div>
       <div class="color-picker">
-        <color-picker class="picker" :value="colors" @input="updateValue"></color-picker>
-        <iframe
-          width="560"
-          height="315"
-          :src="livestream"
-          frameborder="0"
-          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen
-        ></iframe>
+        <color-picker id="picker" class="picker" :value="colors" @input="updateValue"></color-picker>
       </div>
       <p :style="{ 'color': inverse }">
         <b>{{ message }}</b>
@@ -44,14 +33,14 @@
 </template>
 
 <script>
-import { Sketch } from "vue-color";
+import { Twitter } from "vue-color";
 import * as axios from "axios";
 import { Spinner } from "spin.js";
 import ColorInverter from "./inverter.js";
 import * as signalR from "@aspnet/signalr";
 
 const apiBaseUrl =
-  process.env.API_BASE_URL || "https://i-enjoy-lamp.azurewebsites.net";
+  process.env.API_BASE_URL || "https://lifx-lamp-api.azurewebsites.net";
 
 const colors = {
   hex: "#194d33",
@@ -67,16 +56,15 @@ export default {
     return {
       colors,
       message: "",
-      inverse: "#fff",
-      livestream: "https://www.youtube.com/embed/TD44SkQySa8"
+      inverse: "#fff"
     };
   },
   components: {
-    ColorPicker: Sketch
+    ColorPicker: Twitter
   },
   mounted: async function() {
     let connection = new signalR.HubConnectionBuilder()
-      .withUrl(`${apiBaseUrl}/api`)
+      .withUrl(`${apiBaseUrl}`)
       .build();
 
     connection.on(
@@ -92,6 +80,8 @@ export default {
   },
   methods: {
     updateValue(value) {
+      console.log(value);
+
       // strip the # off the hex
       let hex = value.hex.substring(1);
 
@@ -114,7 +104,7 @@ export default {
       let spinner = new Spinner(opts).spin(target);
 
       axios
-        .get(`${apiBaseUrl}/api/setColor?color=${hex}`)
+        .get(`${apiBaseUrl}/setColor?color=${hex}`)
         .then(response => {
           spinner.stop();
         })
@@ -157,11 +147,13 @@ footer {
 .color {
   margin: auto;
   text-align: center;
+  width: 100%;
 }
 
 .color-picker {
   display: flex;
   justify-content: center;
+  position: relative;
 }
 
 .title {
@@ -178,18 +170,6 @@ h1 {
 
 .animate {
   transition: color 1s, background-color 1s;
-}
-
-@media screen and (max-width: 819px) {
-  .color-picker iframe {
-    display: none;
-  }
-}
-
-@media screen and (min-width: 820px) {
-  #livestreamLink {
-    display: none;
-  }
 }
 
 @keyframes spinner-line-fade-more {
